@@ -41,13 +41,3 @@ def get_lyrics(song_url):
         lyrics = "\n".join([line.get_text() for line in soup.find_all("p")])
         return lyrics if lyrics else "Lyrics not found."
 
-# Example usage
-song_name = "Shape of You"
-artist_name = "Ed Sheeran"
-song_url = search_song_on_genius(song_name, artist_name)
-
-if song_url:
-    print(f"Lyrics for {song_name} by {artist_name}:\n")
-    print(get_lyrics(song_url))
-else:
-    print("Song lyrics not found on Genius.")
