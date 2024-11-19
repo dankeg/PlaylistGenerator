@@ -2,9 +2,9 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
 # Set up authentication
-client_id = '11bb2d9016d041fab22fcbfda9919bfd'
-client_secret = '7e426a77b7cd4ed5bca0a417c1ef27a5'
-redirect_uri = 'http://localhost:3000'
+client_id = ''
+client_secret = ''
+redirect_uri = ''
 
 # Define the scopes required for various user data
 scope = "user-read-private user-follow-read user-top-read playlist-read-private user-read-recently-played"
