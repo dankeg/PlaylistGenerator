@@ -21,8 +21,6 @@ from constants import (
     num_iterations,
 )
 
-listy = [1, 2, 3]
-
 
 # @test {"skip": true}
 def compute_avg_return(environment, policy, num_episodes=10):
@@ -55,7 +53,7 @@ def dense_layer(num_units):
     )
 
 
-def initialize_agent(env, train_env2, learning_rate=1e-3):
+def initialize_agent(env, train_env2, learning_rate=1e-3, epsilon_initial=1.0, epsilon_final=0.1, epsilon_decay_steps=10000):
     fc_layer_params = (400, 200)
     action_tensor_spec = tensor_spec.from_spec(env.action_spec())
     num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
@@ -73,6 +71,13 @@ def initialize_agent(env, train_env2, learning_rate=1e-3):
 
     train_step_counter = tf.Variable(0)
 
+    epsilon = tf.compat.v1.train.polynomial_decay(
+        learning_rate=epsilon_initial,
+        global_step=train_step_counter,
+        decay_steps=epsilon_decay_steps,
+        end_learning_rate=epsilon_final
+    )
+
     agent = dqn_agent.DqnAgent(
         train_env2.time_step_spec(),
         train_env2.action_spec(),
@@ -82,12 +87,11 @@ def initialize_agent(env, train_env2, learning_rate=1e-3):
         td_errors_loss_fn=common.element_wise_huber_loss,
         gamma=0.99,  # Discount factor
         train_step_counter=train_step_counter,
-        epsilon_greedy=0.1,  # Exploration rate
+        epsilon_greedy=epsilon,  # Decaying exploration rate
     )
 
     agent.initialize()
 
-    return agent
 
 
 def generate_replay_buffer(agent, table_name, replay_buffer_max_length=100000):

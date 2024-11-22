@@ -5,12 +5,12 @@ import requests
 from bs4 import BeautifulSoup
 
 # Spotify API credentials
-client_id = ''
-client_secret = ''
-redirect_uri = ''
+client_id = '2cb38f81b5094e57a4b67ec9d27d20c4'
+client_secret = '35625fcd626b4566ae712a75aa14fd81'
+redirect_uri = 'http://127.0.0.1:9090/'
 
 # Genius API token
-genius_token = ''
+genius_token = 'LYDItbbdt-WqO1eWl05P-cIRABGIWTYCTfGcYT4K4IETES_1lnUlmluZR3DUbYWX'
 
 # Scopes for Spotify API
 scope = "user-read-private user-follow-read user-top-read playlist-read-private user-read-recently-played"

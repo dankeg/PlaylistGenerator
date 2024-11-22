@@ -39,7 +39,7 @@ def preprocess_data(df):
     )
 
     # Encode 'played_at' as a timestamp
-    df['played_at_timestamp'] = pd.to_datetime(df['played_at']).astype(np.int64) // 10**9
+    # df['played_at_timestamp'] = pd.to_datetime(df['played_at']).astype(np.int64) // 10**9
 
     return df
 

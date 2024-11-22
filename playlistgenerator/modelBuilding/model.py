@@ -73,10 +73,11 @@ def get_recommendations(track_id, df, similarity_matrix, top_n=5):
 
     sim_scores = list(enumerate(similarity_matrix[idx]))
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-    sim_scores = sim_scores[1:top_n+1]  # Exclude the track itself
+    sim_scores = sim_scores[1:]  # Exclude the track itself
 
     track_indices = [i[0] for i in sim_scores]
-    return df.iloc[track_indices][['track_name', 'artist_name', 'sentiment', 'dominant_topic']]
+    final_df = df.iloc[track_indices][['track_name', 'artist_name', 'sentiment', 'dominant_topic']]
+    return final_df.drop_duplicates(subset="track_name").head(top_n)
 
 # Vectorize lyrics
 tfidf_matrix = vectorize_lyrics(df)

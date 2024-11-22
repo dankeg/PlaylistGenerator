@@ -12,9 +12,6 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
     def __init__(self):
         pass
 
-    def get_selection(self):
-        return self._selection
-
     def action_spec(self):
         return self._action_spec
 
