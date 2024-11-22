@@ -9,7 +9,7 @@ from tf_agents.specs import array_spec
 from tf_agents.trajectories import time_step as ts
 
 class MusicPlaylistEnv(py_environment.PyEnvironment):
-    def __init__(self, cost_gen, flag, accum):
+    def __init__(self):
         pass
 
     def get_selection(self):

@@ -10,7 +10,7 @@ from tf_agents.policies import py_tf_eager_policy
 from tf_agents.replay_buffers import reverb_replay_buffer, reverb_utils
 from tf_agents.specs import tensor_spec
 from tf_agents.utils import common
-from enviornment import MusicPlaylistEnv
+from playlistgenerator.ReinforcementLearning.environment import MusicPlaylistEnv
 
 from constants import (
     batch_size,

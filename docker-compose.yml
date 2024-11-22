@@ -1,0 +1,12 @@
+version: '0.0.1'
+
+services:
+  run-pipeline:
+    container_name: run-pipeline
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    command: ls
+    volumes:
+      - .:/opt/pipeline
