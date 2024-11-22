@@ -1,5 +1,5 @@
 # Use amazonlinux as base image
-FROM --platform=amd64 amazonlinux:latest AS base
+FROM --platform=linux/amd64 amazonlinux:latest AS base
 
 # Install system dependencies
 RUN dnf update -y --releasever=latest\
@@ -34,3 +34,4 @@ RUN poetry build && pip install dist/*.whl
 FROM poetry AS prod
 
 RUN pip install dm-reverb[tensorflow]
+# RUN pip install "tensorflow==2.16.2"

@@ -7,6 +7,10 @@ services:
       context: .
       dockerfile: Dockerfile
       target: prod
-    command: ls
+    environment:
+      CUDA_VISIBLE_DEVICES: ""
+      VAR_TWO: "0"
+      VAR_THREE: "0"
+    command: python3 playlistgenerator/ReinforcementLearning/training.py
     volumes:
       - .:/opt/pipeline

@@ -11,8 +11,9 @@ from tf_agents.replay_buffers import reverb_replay_buffer, reverb_utils
 from tf_agents.specs import tensor_spec
 from tf_agents.utils import common
 from playlistgenerator.ReinforcementLearning.environment import MusicPlaylistEnv
+import pandas
 
-from constants import (
+from playlistgenerator.ReinforcementLearning.constants import (
     batch_size,
     collect_steps_per_iteration,
     eval_interval,
@@ -92,6 +93,8 @@ def initialize_agent(env, train_env2, learning_rate=1e-3, epsilon_initial=1.0, e
 
     agent.initialize()
 
+    return agent
+
 
 
 def generate_replay_buffer(agent, table_name, replay_buffer_max_length=100000):
@@ -122,12 +125,13 @@ def generate_replay_buffer(agent, table_name, replay_buffer_max_length=100000):
 
 
 def train_models():
-    train_py_env = MusicPlaylistEnv()
-    eval_py_env = MusicPlaylistEnv()
+    ml_data = "placeholder"
+    train_py_env = MusicPlaylistEnv(ml_data)
+    eval_py_env = MusicPlaylistEnv(ml_data)
 
     train_env = tf_py_environment.TFPyEnvironment(train_py_env)
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
-    env = MusicPlaylistEnv()
+    env = MusicPlaylistEnv(ml_data)
 
     agent = initialize_agent(env, train_env)
 
@@ -196,3 +200,8 @@ def train_models():
             returns.append(avg_return)
 
     return agent
+
+
+if __name__ == "__main__":
+    print("Hello World!")
+    train_models(filepath="playlistgenerator/ReinforcementLearning/recommendation.csv")
