@@ -79,6 +79,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
 
             temp_row = self.data.iloc[4].copy()
             self.data.iloc[4] = self.data.iloc[5]
+            print(self.data.iloc[5])
             self.data.iloc[5] = temp_row
 
             row_to_move = self.data.iloc[4].copy()
@@ -95,6 +96,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
             self.data.loc[self.data['unique_id'] == id, 'user_score'] += -1
 
             temp_row = self.data.iloc[action].copy()
+            print(self.data.iloc[5])
             self.data.iloc[action] = self.data.iloc[5]
             self.data.iloc[5] = temp_row
 
