@@ -21,7 +21,7 @@ def analyze_sentiment(text):
 
 data['sentiment_score'] = data['cleaned_lyrics'].apply(analyze_sentiment)
 
-# Emotional Analysis (Categorizing based on sentiment score)
+# Emotional Analysis 
 def categorize_emotion(sentiment_score):
     if sentiment_score > 0.2:
         return 'Positive'
@@ -34,11 +34,11 @@ data['emotion'] = data['sentiment_score'].apply(categorize_emotion)
 
 # Topic Modeling using LDA
 # Vectorize the lyrics
-vectorizer = CountVectorizer(max_features=1000, stop_words='english')  # Limiting features for LDA
+vectorizer = CountVectorizer(max_features=1000, stop_words='english')  
 lyrics_matrix = vectorizer.fit_transform(data['cleaned_lyrics'])
 
 # LDA Model
-n_topics = 5  # Number of topics to extract
+n_topics = 5  
 lda_model = LatentDirichletAllocation(n_components=n_topics, random_state=42)
 lda_model.fit(lyrics_matrix)
 
