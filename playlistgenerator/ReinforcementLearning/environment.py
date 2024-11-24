@@ -72,6 +72,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
         
         # Increment the step count
         self.count += 1
+        print(f"Count {self.count}")
 
         # If the step count exceeds 300, terminate the episode
         if self.count > 100:
