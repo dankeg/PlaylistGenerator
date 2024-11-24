@@ -23,12 +23,10 @@ from playlistgenerator.ReinforcementLearning.constants import (
 )
 
 
-# @test {"skip": true}
+# Compute the average return of the policy over a number of episodes
 def compute_avg_return(environment, policy, num_episodes=10):
-
     total_return = 0.0
     for _ in range(num_episodes):
-
         time_step = environment.reset()
         episode_return = 0.0
 
@@ -54,11 +52,13 @@ def dense_layer(num_units):
     )
 
 
+# Initialize the DQN agent with the given environment and hyperparameters
 def initialize_agent(env, train_env2, learning_rate=1e-3, epsilon_initial=1.0, epsilon_final=0.1, epsilon_decay_steps=10000):
     fc_layer_params = (400, 200)
     action_tensor_spec = tensor_spec.from_spec(env.action_spec())
     num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
+    # Create the Q-network
     dense_layers = [dense_layer(num_units) for num_units in fc_layer_params]
     q_values_layer = tf.keras.layers.Dense(
         num_actions,
@@ -72,6 +72,7 @@ def initialize_agent(env, train_env2, learning_rate=1e-3, epsilon_initial=1.0, e
 
     train_step_counter = tf.Variable(0)
 
+    # Define the epsilon decay schedule
     epsilon = tf.compat.v1.train.polynomial_decay(
         learning_rate=epsilon_initial,
         global_step=train_step_counter,
@@ -79,6 +80,7 @@ def initialize_agent(env, train_env2, learning_rate=1e-3, epsilon_initial=1.0, e
         end_learning_rate=epsilon_final
     )
 
+    # Create the DQN agent
     agent = dqn_agent.DqnAgent(
         train_env2.time_step_spec(),
         train_env2.action_spec(),
@@ -96,11 +98,12 @@ def initialize_agent(env, train_env2, learning_rate=1e-3, epsilon_initial=1.0, e
     return agent
 
 
-
+# Generate the replay buffer for experience replay
 def generate_replay_buffer(agent, table_name, replay_buffer_max_length=100000):
     replay_buffer_signature = tensor_spec.from_spec(agent.collect_data_spec)
     replay_buffer_signature = tensor_spec.add_outer_dim(replay_buffer_signature)
 
+    # Create the replay buffer table
     table = reverb.Table(
         table_name,
         max_size=replay_buffer_max_length,
@@ -114,6 +117,7 @@ def generate_replay_buffer(agent, table_name, replay_buffer_max_length=100000):
 
     reverb_server = reverb.Server([table])
 
+    # Create the replay buffer
     replay_buffer = reverb_replay_buffer.ReverbReplayBuffer(
         agent.collect_data_spec,
         table_name=table_name,
@@ -124,7 +128,9 @@ def generate_replay_buffer(agent, table_name, replay_buffer_max_length=100000):
     return replay_buffer
 
 
+# Train the models using the provided data
 def train_models(ml_data):
+    # Create training and evaluation environments
     train_py_env = MusicPlaylistEnv(ml_data)
     eval_py_env = MusicPlaylistEnv(ml_data)
 
@@ -132,16 +138,19 @@ def train_models(ml_data):
     eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
     env = MusicPlaylistEnv(ml_data)
 
+    # Initialize the agent
     agent = initialize_agent(env, train_env)
 
     table_name = "uniform_table"
 
+    # Generate the replay buffer
     replay_buffer = generate_replay_buffer(agent, table_name)
 
     rb_observer = reverb_utils.ReverbAddTrajectoryObserver(
         replay_buffer.py_client, table_name, sequence_length=2
     )
 
+    # Collect initial experience
     py_driver.PyDriver(
         env,
         py_tf_eager_policy.PyTFEagerPolicy(agent.collect_policy, use_tf_function=True),
@@ -178,6 +187,7 @@ def train_models(ml_data):
         max_steps=collect_steps_per_iteration,
     )
 
+    # Training loop
     for _ in range(num_iterations):
         # Collect a few steps and save to the replay buffer.
         time_step, _ = collect_driver.run(time_step)
@@ -188,9 +198,11 @@ def train_models(ml_data):
 
         step = agent.train_step_counter.numpy()
 
+        # Log training loss
         if step % log_interval == 0:
             print("step = {0}: loss = {1}".format(step, train_loss))
 
+        # Evaluate the agent's policy periodically
         if step % eval_interval == 0:
             avg_return = compute_avg_return(eval_env, agent.policy, num_eval_episodes)
             global_best = max(global_best, avg_return)
