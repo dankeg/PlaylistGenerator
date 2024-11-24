@@ -13,7 +13,7 @@ lyrics_similarity = cosine_similarity(tfidf_matrix)
 
 # Recommend similar tracks for a given track_id
 track_indices = {track_id: idx for idx, track_id in enumerate(data['id'])}
-def recommend_similar_tracks(track_id, similarity_matrix, top_n=5):
+def recommend_similar_tracks(track_id, similarity_matrix, top_n=20):
     idx = track_indices[track_id]
     similar_indices = similarity_matrix[idx].argsort()[-top_n-1:-1][::-1]
     return data.iloc[similar_indices][['name', 'artists']]
