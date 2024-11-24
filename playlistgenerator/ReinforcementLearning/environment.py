@@ -15,7 +15,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
         self._action_spec = array_spec.BoundedArraySpec(
         shape=(), dtype=np.int32, minimum=0, maximum=4, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(20,), dtype=np.float64, minimum=0, name='observation')
+            shape=(30,), dtype=np.float64, minimum=0, name='observation')
         
         self.saved_data = data
 
@@ -55,7 +55,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
 
         print(self._state.to_numpy().flatten())
         print(f"Len is {self._state.to_numpy().flatten().size}")
-        return ts.restart(np.zeros(20))
+        return ts.restart(self._state.to_numpy().flatten())
 
     def _step(self, action):
         if self._episode_ended:
@@ -63,7 +63,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
         
         self.count += 1
         if self.count > 300:
-            return ts.termination(np.zeros(20), 0)
+            return ts.termination(self._state.to_numpy().flatten(), 0)
 
         score_array = self._state["user_score"].to_numpy()
         softmax_output = softmax(score_array)
@@ -85,7 +85,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
             self._state = self.data.iloc[:5].copy()
             print(self._state.to_numpy().flatten())
             print(f"Len is {self._state.to_numpy().flatten().size}")
-            return ts.transition(np.zeros(20), reward=1.0, discount=.99)
+            return ts.transition(self._state.to_numpy().flatten(), reward=1.0, discount=.99)
         else:
             id_array = self._state["unique_id"].to_numpy()
             id = id_array[action]
@@ -98,5 +98,5 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
 
             self._state = self.data.iloc[:5].copy()
             print(f"Len is {self._state.to_numpy().flatten().size}")
-            return ts.transition(np.zeros(20), reward=0.0, discount=.99)
+            return ts.transition(self._state.to_numpy().flatten(), reward=0.0, discount=.99)
 
