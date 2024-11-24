@@ -124,8 +124,7 @@ def generate_replay_buffer(agent, table_name, replay_buffer_max_length=100000):
     return replay_buffer
 
 
-def train_models():
-    ml_data = "placeholder"
+def train_models(ml_data):
     train_py_env = MusicPlaylistEnv(ml_data)
     eval_py_env = MusicPlaylistEnv(ml_data)
 
