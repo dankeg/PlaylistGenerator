@@ -62,10 +62,6 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
         # Initialize the state with the first 5 rows of data
         self._state = self.data.head(5)
 
-        # Print the state for debugging purposes
-        print(self._state.to_numpy().flatten())
-        print(f"Len is {self._state.to_numpy().flatten().size}")
-
         # Return the initial time step
         return ts.restart(self._state.to_numpy().flatten())
 
@@ -84,10 +80,6 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
         # Get the user scores and compute the softmax output
         score_array = self._state["user_score"].to_numpy()
         softmax_output = softmax(score_array)
-
-        # Print the action and softmax output for debugging purposes
-        print(f"The action is {action}")
-        print(f"The softmax output is {softmax_output}")
 
         # Determine if the action is selected based on the softmax probability
         probability = softmax_output[action]
@@ -108,10 +100,6 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
             # Update the state with the first 5 rows of data
             self._state = self.data.iloc[:5].copy()
 
-            # Print the state for debugging purposes
-            print(self._state.to_numpy().flatten())
-            print(f"Len is {self._state.to_numpy().flatten().size}")
-
             # Return a transition time step with a reward of 1.0
             return ts.transition(self._state.to_numpy().flatten(), reward=1.0, discount=.99)
         else:
@@ -128,9 +116,6 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
 
             # Update the state with the first 5 rows of data
             self._state = self.data.iloc[:5].copy()
-
-            # Print the state length for debugging purposes
-            print(f"Len is {self._state.to_numpy().flatten().size}")
 
             # Return a transition time step with a reward of 0.0
             return ts.transition(self._state.to_numpy().flatten(), reward=0.0, discount=.99)
