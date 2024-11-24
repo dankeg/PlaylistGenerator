@@ -10,7 +10,7 @@ import pandas as pd
 data = pd.read_csv('../Datasets/cleaned_spotify_songs.csv')
 
 # Ensure the cleaned_lyrics column has no NaN values or non-string types
-data['cleaned_lyrics'] = data['cleaned_lyrics'].fillna('').astype(str)
+data['lyrics'] = data['lyrics'].fillna('').astype(str)
 
 # Sentiment Analysis
 def analyze_sentiment(text):
@@ -19,7 +19,7 @@ def analyze_sentiment(text):
     blob = TextBlob(text)
     return blob.sentiment.polarity  # Polarity: -1 (negative) to 1 (positive)
 
-data['sentiment_score'] = data['cleaned_lyrics'].apply(analyze_sentiment)
+data['sentiment_score'] = data['lyrics'].apply(analyze_sentiment)
 
 # Emotional Analysis 
 def categorize_emotion(sentiment_score):
@@ -32,13 +32,12 @@ def categorize_emotion(sentiment_score):
 
 data['emotion'] = data['sentiment_score'].apply(categorize_emotion)
 
-# Topic Modeling using LDA
 # Vectorize the lyrics
 vectorizer = CountVectorizer(max_features=1000, stop_words='english')  
-lyrics_matrix = vectorizer.fit_transform(data['cleaned_lyrics'])
+lyrics_matrix = vectorizer.fit_transform(data['lyrics'])
 
 # LDA Model
-n_topics = 5  
+n_topics = 10
 lda_model = LatentDirichletAllocation(n_components=n_topics, random_state=42)
 lda_model.fit(lyrics_matrix)
 
@@ -56,21 +55,6 @@ def get_dominant_topic(lda_model, lyrics_matrix):
     return topic_assignments.argmax(axis=1)
 
 data['dominant_topic'] = get_dominant_topic(lda_model, lyrics_matrix)
-
-# Visualize Topics with WordClouds
-def plot_topic_wordclouds(lda_model, feature_names, n_topics):
-    for topic_idx, topic in enumerate(lda_model.components_):
-        wordcloud = WordCloud(
-            width=800, height=400, background_color='white'
-        ).generate_from_frequencies({feature_names[i]: topic[i] for i in topic.argsort()[:-30 - 1:-1]})
-        
-        plt.figure(figsize=(10, 5))
-        plt.imshow(wordcloud, interpolation='bilinear')
-        plt.axis('off')
-        plt.title(f"WordCloud for Topic {topic_idx + 1}")
-        plt.show()
-
-plot_topic_wordclouds(lda_model, vectorizer.get_feature_names_out(), n_topics)
 
 # Sentiment Score Distribution
 plt.figure(figsize=(8, 5))
@@ -104,7 +88,7 @@ plt.xlabel('Dominant Topic')
 plt.ylabel('Sentiment Score')
 plt.show()
 
-# Save the data with Sentiment, Emotion, and Topics
+# Save the data 
 data.to_csv('../Datasets/processed_spotify_songs_step3.csv', index=False)
 
 
