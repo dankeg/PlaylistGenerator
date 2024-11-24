@@ -74,7 +74,8 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
         self.count += 1
 
         # If the step count exceeds 300, terminate the episode
-        if self.count > 300:
+        if self.count > 100:
+            self._episode_ended = True
             return ts.termination(self._state.to_numpy().flatten(), 0)
 
         # Get the user scores and compute the softmax output
