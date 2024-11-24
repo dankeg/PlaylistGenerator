@@ -29,6 +29,7 @@ def compute_avg_return(environment, policy, num_episodes=10):
     for _ in range(num_episodes):
         time_step = environment.reset()
         episode_return = 0.0
+        print(episode_return)
 
         while not time_step.is_last():
             action_step = policy.action(time_step)
