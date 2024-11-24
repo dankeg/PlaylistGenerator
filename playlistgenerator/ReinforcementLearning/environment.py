@@ -77,12 +77,15 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
             self._state.loc[self._state['unique_id'] == id, 'user_score'] += 1
             self.data.loc[self.data['unique_id'] == id, 'user_score'] += 1
 
-            self.data.iloc[[4, 5]] = self.data.iloc[[5, 4]].values
+            temp_row = self.data.iloc[4].copy()
+            self.data.iloc[4] = self.data.iloc[5]
+            self.data.iloc[5] = temp_row
+
             row_to_move = self.data.iloc[4].copy()
-            self.data.drop(self.data.index[4], inplace=True)
-            self.data.reset_index(drop=True, inplace=True)
-            self.data = self.data.append(row_to_move, ignore_index=True)
-            self._state.iloc[:] = self.data.iloc[:5].values
+            self.data = self.data.drop(self.data.index[4]).reset_index(drop=True)
+            self.data = pd.concat([self.data, row_to_move.to_frame().T], ignore_index=True)
+
+            self._state = self.data.iloc[:5].copy()
             print(self._state.to_numpy().flatten())
             return ts.transition(np.zeros(20), reward=1.0, discount=.99)
         else:
@@ -91,11 +94,15 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
             self._state.loc[self._state['unique_id'] == id, 'user_score'] += -1
             self.data.loc[self.data['unique_id'] == id, 'user_score'] += -1
 
-            self.data.iloc[[action, 5]] = self.data.iloc[[5, action]].values
+            temp_row = self.data.iloc[action].copy()
+            self.data.iloc[action] = self.data.iloc[5]
+            self.data.iloc[5] = temp_row
+
             row_to_move = self.data.iloc[4].copy()
-            self.data.drop(self.data.index[4], inplace=True)
-            self.data.reset_index(drop=True, inplace=True)
-            self.data = self.data.append(row_to_move, ignore_index=True)
-            self._state.iloc[:] = self.data.iloc[:5].values
+            self.data = self.data.drop(self.data.index[4]).reset_index(drop=True)
+            self.data = pd.concat([self.data, row_to_move.to_frame().T], ignore_index=True)
+
+            self._state = self.data.iloc[:5].copy()
             print(self._state.to_numpy().flatten())
             return ts.transition(np.zeros(20), reward=0.0, discount=.99)
+
