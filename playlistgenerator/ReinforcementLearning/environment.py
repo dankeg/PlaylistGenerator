@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import random
 
 import numpy as np
-from utils import softmax
+from playlistgenerator.ReinforcementLearning.utils import softmax
 import pandas as pd
 
 from tf_agents.environments import py_environment
@@ -61,7 +61,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
         
         self.count += 1
         if self.count > 300:
-            return ts.termination(np.array([self._state], dtype=np.int32), 0)
+            return ts.termination(np.array([self._state.to_numpy()], dtype=np.int32), 0)
 
         score_array = self._state["user_score"].to_numpy()
         softmax_output = softmax(score_array)
