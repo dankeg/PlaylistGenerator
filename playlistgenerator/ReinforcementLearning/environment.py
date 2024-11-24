@@ -71,11 +71,10 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
             return self.reset()
         
         # Increment the step count
-        self.count += 1
         print(f"Count {self.count}")
 
         # If the step count exceeds 300, terminate the episode
-        if self.count > 100:
+        if self.count > 30:
             self._episode_ended = True
             return ts.termination(self._state.to_numpy().flatten(), 0)
 
