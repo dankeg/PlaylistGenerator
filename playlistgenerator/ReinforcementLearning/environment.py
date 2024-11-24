@@ -15,7 +15,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
         self._action_spec = array_spec.BoundedArraySpec(
         shape=(), dtype=np.int32, minimum=0, maximum=4, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(5,4), dtype=np.int32, minimum=0, name='observation')
+            shape=(20,), dtype=np.int32, minimum=0, name='observation')
         
         self.saved_data = data
 
@@ -53,7 +53,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
 
         self._state = self.data.head(5)
 
-        return ts.restart(np.array([self._state.to_numpy()], dtype=np.int32))
+        return ts.restart(self._state.to_numpy().flatten())
 
     def _step(self, action):
         if self._episode_ended:
@@ -61,7 +61,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
         
         self.count += 1
         if self.count > 300:
-            return ts.termination(np.array([self._state.to_numpy()], dtype=np.int32), 0)
+            return ts.termination(self._state.to_numpy().flatten(), 0)
 
         score_array = self._state["user_score"].to_numpy()
         softmax_output = softmax(score_array)
@@ -80,7 +80,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
             self.data.reset_index(drop=True, inplace=True)
             self.data = self.data.append(row_to_move, ignore_index=True)
             self._state.iloc[:] = self.data.iloc[:5].values
-            return ts.transition(np.array([self._state.to_numpy()], dtype=np.int32), reward=1.0, discount=.99)
+            return ts.transition(self._state.to_numpy().flatten(), reward=1.0, discount=.99)
         else:
             id_array = self._state["unique_id"].to_numpy()
             id = id_array[action]
@@ -93,4 +93,4 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
             self.data.reset_index(drop=True, inplace=True)
             self.data = self.data.append(row_to_move, ignore_index=True)
             self._state.iloc[:] = self.data.iloc[:5].values
-            return ts.transition(np.array([self._state.to_numpy()], dtype=np.int32), reward=0.0, discount=.99)
+            return ts.transition(self._state.to_numpy().flatten(), reward=0.0, discount=.99)
