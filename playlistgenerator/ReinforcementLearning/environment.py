@@ -13,7 +13,7 @@ from tf_agents.trajectories import time_step as ts
 class MusicPlaylistEnv(py_environment.PyEnvironment):
     def __init__(self, data):
         self._action_spec = array_spec.BoundedArraySpec(
-        shape=(), dtype=np.float64, minimum=0, maximum=4, name='action')
+        shape=(), dtype=np.int32, minimum=0, maximum=4, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(
             shape=(20,), dtype=np.float64, minimum=0, name='observation')
         
@@ -66,8 +66,8 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
 
         score_array = self._state["user_score"].to_numpy()
         softmax_output = softmax(score_array)
-        print(action)
-        print(softmax_output)
+        print(f"The action is {action}")
+        print(f"The softmax output is {softmax_output}")
         probability = softmax_output[action]
         selection = random.random() < probability
 
