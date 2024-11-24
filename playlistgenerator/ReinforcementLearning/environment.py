@@ -54,6 +54,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
         self._state = self.data.head(5)
 
         print(self._state.to_numpy().flatten())
+        print(f"Len is {self._state.to_numpy().flatten().size}")
         return ts.restart(np.zeros(20))
 
     def _step(self, action):
@@ -83,6 +84,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
 
             self._state = self.data.iloc[:5].copy()
             print(self._state.to_numpy().flatten())
+            print(f"Len is {self._state.to_numpy().flatten().size}")
             return ts.transition(np.zeros(20), reward=1.0, discount=.99)
         else:
             id_array = self._state["unique_id"].to_numpy()
@@ -95,6 +97,6 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
             self.data = pd.concat([self.data.drop(self.data.index[5]), row_to_move], ignore_index=True)
 
             self._state = self.data.iloc[:5].copy()
-            print(self._state.to_numpy().flatten())
+            print(f"Len is {self._state.to_numpy().flatten().size}")
             return ts.transition(np.zeros(20), reward=0.0, discount=.99)
 
