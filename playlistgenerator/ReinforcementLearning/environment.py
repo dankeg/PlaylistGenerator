@@ -66,6 +66,8 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
 
         score_array = self._state["user_score"].to_numpy()
         softmax_output = softmax(score_array)
+        print(action)
+        print(softmax_output)
         probability = softmax_output[action]
         selection = random.random() < probability
 
