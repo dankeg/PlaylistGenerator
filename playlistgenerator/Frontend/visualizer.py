@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 # Function to apply custom CSS for background and layout
 def set_background_style():
     st.markdown(
@@ -33,10 +34,14 @@ def set_background_style():
         unsafe_allow_html=True,
     )
 
+
 # Function to display the mini Spotify player
 def mini_spotify_player(album_image_url, song_name, artist_name):
     # Title
-    st.markdown("<div class='spotify-title'>🎵 Mini Spotify Player</div>", unsafe_allow_html=True)
+    st.markdown(
+        "<div class='spotify-title'>🎵 Mini Spotify Player</div>",
+        unsafe_allow_html=True,
+    )
 
     # Album image
     st.image(
@@ -65,6 +70,7 @@ def mini_spotify_player(album_image_url, song_name, artist_name):
         if st.button("👎 Dislike"):
             st.error("You disliked this song! 💔")
         st.markdown("</div>", unsafe_allow_html=True)
+
 
 # Apply background style
 set_background_style()

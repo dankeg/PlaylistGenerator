@@ -7,10 +7,30 @@ services:
       context: .
       dockerfile: Dockerfile
       target: prod
+    privileged: true
     environment:
       CUDA_VISIBLE_DEVICES: ""
       VAR_TWO: "0"
       VAR_THREE: "0"
-    command: python3 playlistgenerator/ReinforcementLearning/training.py
+      TF_NUM_INTRAOP_THREADS: 6
+    command: python3 -u playlistgenerator/ReinforcementLearning/training.py 
     volumes:
       - .:/opt/pipeline
+    ports:
+      - "8501:8501"  # Map container's 8501 to host's 8501
+
+  run-webapp:
+    container_name: run-webapp
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    environment:
+      CUDA_VISIBLE_DEVICES: ""
+      VAR_TWO: "0"
+      VAR_THREE: "0"
+    command: streamlit run playlistgenerator/frontend_app.py --server.address 0.0.0.0
+    volumes:
+      - .:/opt/pipeline
+    ports:
+      - "8501:8501"  # Map container's 8501 to host's 8501

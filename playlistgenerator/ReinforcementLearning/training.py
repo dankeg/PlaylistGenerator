@@ -1,17 +1,19 @@
 from __future__ import absolute_import, division, print_function
 
+import json
+import os
+
+import pandas as pd
 import reverb
 import tensorflow as tf
 from tf_agents.agents.dqn import dqn_agent
 from tf_agents.drivers import py_driver
 from tf_agents.environments import tf_py_environment
 from tf_agents.networks import sequential
-from tf_agents.policies import py_tf_eager_policy
+from tf_agents.policies import policy_saver, py_tf_eager_policy
 from tf_agents.replay_buffers import reverb_replay_buffer, reverb_utils
 from tf_agents.specs import tensor_spec
 from tf_agents.utils import common
-from playlistgenerator.ReinforcementLearning.environment import MusicPlaylistEnv
-import pandas
 
 from playlistgenerator.ReinforcementLearning.constants import (
     batch_size,
@@ -21,29 +23,33 @@ from playlistgenerator.ReinforcementLearning.constants import (
     num_eval_episodes,
     num_iterations,
 )
+from playlistgenerator.ReinforcementLearning.environment import MusicPlaylistEnv
+
+tf.config.set_visible_devices([], "GPU")
+tf.config.optimizer.set_jit(True)
 
 
 # Compute the average return of the policy over a number of episodes
 def compute_avg_return(environment, policy, num_episodes=10):
+    """Computes the average return of the RL policy on a testing environment."""
     total_return = 0.0
     for _ in range(num_episodes):
         time_step = environment.reset()
         episode_return = 0.0
-        print(episode_return)
 
         while not time_step.is_last():
             action_step = policy.action(time_step)
             time_step = environment.step(action_step.action)
             episode_return += time_step.reward
         total_return += episode_return
+    print(total_return)
 
     avg_return = total_return / num_episodes
     return avg_return.numpy()[0]
 
 
-# Define a helper function to create Dense layers configured with the right
-# activation and kernel initializer.
 def dense_layer(num_units):
+    """Helper function to create Dense layers configured with the right activation and kernel initializer."""
     return tf.keras.layers.Dense(
         num_units,
         activation=tf.keras.activations.relu,
@@ -53,9 +59,16 @@ def dense_layer(num_units):
     )
 
 
-# Initialize the DQN agent with the given environment and hyperparameters
-def initialize_agent(env, train_env2, learning_rate=1e-3, epsilon_initial=1.0, epsilon_final=0.1, epsilon_decay_steps=10000):
-    fc_layer_params = (400, 200)
+def initialize_agent(
+    env,
+    train_env2,
+    learning_rate=1e-3,
+    epsilon_initial=1.0,
+    epsilon_final=0.1,
+    epsilon_decay_steps=10000,
+):
+    """Initialize the DQN agent with the given environment and hyperparameters."""
+    fc_layer_params = (1024, 512, 256, 128)
     action_tensor_spec = tensor_spec.from_spec(env.action_spec())
     num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
 
@@ -63,9 +76,9 @@ def initialize_agent(env, train_env2, learning_rate=1e-3, epsilon_initial=1.0, e
     dense_layers = [dense_layer(num_units) for num_units in fc_layer_params]
     q_values_layer = tf.keras.layers.Dense(
         num_actions,
-        activation=None,
+        activation="relu",
         kernel_initializer=tf.keras.initializers.RandomUniform(minval=-2, maxval=2),
-        bias_initializer=tf.keras.initializers.Constant(-0.8),
+        bias_initializer=tf.keras.initializers.Constant(0.0),
     )
     q_net = sequential.Sequential(dense_layers + [q_values_layer])
 
@@ -78,7 +91,7 @@ def initialize_agent(env, train_env2, learning_rate=1e-3, epsilon_initial=1.0, e
         learning_rate=epsilon_initial,
         global_step=train_step_counter,
         decay_steps=epsilon_decay_steps,
-        end_learning_rate=epsilon_final
+        end_learning_rate=epsilon_final,
     )
 
     # Create the DQN agent
@@ -99,8 +112,8 @@ def initialize_agent(env, train_env2, learning_rate=1e-3, epsilon_initial=1.0, e
     return agent
 
 
-# Generate the replay buffer for experience replay
 def generate_replay_buffer(agent, table_name, replay_buffer_max_length=100000):
+    """Generate the replay buffer for experience replay"""
     replay_buffer_signature = tensor_spec.from_spec(agent.collect_data_spec)
     replay_buffer_signature = tensor_spec.add_outer_dim(replay_buffer_signature)
 
@@ -129,8 +142,8 @@ def generate_replay_buffer(agent, table_name, replay_buffer_max_length=100000):
     return replay_buffer
 
 
-# Train the models using the provided data
 def train_models(ml_data):
+    """Train the RL Music Playlist Generator with the provided data."""
     # Create training and evaluation environments
     train_py_env = MusicPlaylistEnv(ml_data)
     eval_py_env = MusicPlaylistEnv(ml_data)
@@ -188,8 +201,11 @@ def train_models(ml_data):
         max_steps=collect_steps_per_iteration,
     )
 
+    train_loss_array = []
+    global_best_array = []
     # Training loop
-    for _ in range(num_iterations):
+    for iteration_num in range(num_iterations):
+        print(f"Iteration: {iteration_num}")
         # Collect a few steps and save to the replay buffer.
         time_step, _ = collect_driver.run(time_step)
 
@@ -202,6 +218,8 @@ def train_models(ml_data):
         # Log training loss
         if step % log_interval == 0:
             print("step = {0}: loss = {1}".format(step, train_loss))
+            print(train_loss.numpy())
+            train_loss_array.append(str(train_loss.numpy()))
 
         # Evaluate the agent's policy periodically
         if step % eval_interval == 0:
@@ -209,11 +227,26 @@ def train_models(ml_data):
             global_best = max(global_best, avg_return)
             print("step = {0}: Average Return = {1}".format(step, avg_return))
             print(f"Global Best: {global_best}")
+            global_best_array.append(str(global_best))
             returns.append(avg_return)
+
+            policy_dir = os.path.join("outputs/ModelOutputs", "policy")
+            tf_policy_saver = policy_saver.PolicySaver(agent.policy)
+            tf_policy_saver.save(policy_dir)
+
+        with open("outputs/ModelOutputs/train_loss.json", "w") as f1:
+            json.dump(train_loss_array, f1, indent=4)
+
+        with open("outputs/ModelOutputs/global_best.json", "w") as f2:
+            json.dump(global_best_array, f2, indent=4)
 
     return agent
 
 
 if __name__ == "__main__":
-    print("Hello World!")
-    train_models(filepath="playlistgenerator/ReinforcementLearning/recommendation.csv")
+    print("\n\n\n")
+    print("Starting Training!")
+    print("\n\n\n")
+
+    reccs = pd.read_csv("playlistgenerator/recommendation.csv")
+    agent = train_models(reccs)
