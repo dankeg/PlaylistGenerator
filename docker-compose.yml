@@ -13,7 +13,7 @@ services:
       VAR_TWO: "0"
       VAR_THREE: "0"
       TF_NUM_INTRAOP_THREADS: 6
-    command: python3 playlistgenerator/DataCollection/dataPreprocess.py
+    command: python3 -u playlistgenerator/DataCollection/dataPreprocess.py
     volumes:
       - .:/opt/pipeline
     ports:
@@ -31,7 +31,7 @@ services:
       VAR_TWO: "0"
       VAR_THREE: "0"
       TF_NUM_INTRAOP_THREADS: 6
-    command: python3 playlistgenerator/ModelBuildingKaggle/sentiment.py
+    command: python3 -u playlistgenerator/ModelBuildingKaggle/sentiment.py
     volumes:
       - .:/opt/pipeline
     ports:
@@ -49,7 +49,7 @@ services:
       VAR_TWO: "0"
       VAR_THREE: "0"
       TF_NUM_INTRAOP_THREADS: 6
-    command: python3 playlistgenerator/ModelBuildingKaggle/model.py
+    command: python3 -u playlistgenerator/ModelBuildingKaggle/model.py
     volumes:
       - .:/opt/pipeline
     ports:
