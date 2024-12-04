@@ -5,12 +5,12 @@ from bs4 import BeautifulSoup
 from spotipy.oauth2 import SpotifyOAuth
 
 # Spotify API credentials
-client_id = "2cb38f81b5094e57a4b67ec9d27d20c4"
-client_secret = "35625fcd626b4566ae712a75aa14fd81"
-redirect_uri = "http://127.0.0.1:9090/"
+client_id = ""
+client_secret = ""
+redirect_uri = ""
 
 # Genius API token
-genius_token = "LYDItbbdt-WqO1eWl05P-cIRABGIWTYCTfGcYT4K4IETES_1lnUlmluZR3DUbYWX"
+genius_token = ""
 
 # Scopes for Spotify API
 scope = "user-read-private user-follow-read user-top-read playlist-read-private user-read-recently-played"
@@ -109,7 +109,7 @@ def collect_user_data():
     # Convert to DataFrame
     df = pd.DataFrame(data)
     # Save to CSV
-    df.to_csv("user_data.csv", index=False)
+    df.to_csv("playlistgenerator/Datasets/user_data.csv", index=False)
     return df
 
 

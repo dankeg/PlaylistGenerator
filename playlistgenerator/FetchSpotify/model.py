@@ -108,6 +108,12 @@ similarity_matrix = compute_similarity(df, tfidf_matrix)
 # Get recommendations
 sample_track_id = df["track_id"].iloc[0]
 recommendations = get_recommendations(sample_track_id, df, similarity_matrix, top_n=100)
+
 print("Recommendations:")
 print(recommendations)
-recommendations.to_csv("recommendation.csv", sep=",", index=False, encoding="utf-8")
+recommendations.to_csv(
+    "playlistgenerator/Datasets/spotify_recommendation.csv",
+    sep=",",
+    index=False,
+    encoding="utf-8",
+)

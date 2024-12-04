@@ -30,6 +30,7 @@ textblob = "^0.18.0.post0"
 requests = "^2.32.3"
 spotipy = "^2.24.0"
 streamlit = "^1.40.1"
+langdetect = "^1.0.9"
 
 
 [tool.black]

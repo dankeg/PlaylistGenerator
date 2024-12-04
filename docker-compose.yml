@@ -1,6 +1,78 @@
 version: '0.0.1'
 
 services:
+  run-ml-model-preprocess:
+    container_name: run-ml-model-preprocess
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    privileged: true
+    environment:
+      CUDA_VISIBLE_DEVICES: ""
+      VAR_TWO: "0"
+      VAR_THREE: "0"
+      TF_NUM_INTRAOP_THREADS: 6
+    command: python3 playlistgenerator/DataCollection/dataPreprocess.py
+    volumes:
+      - .:/opt/pipeline
+    ports:
+      - "8501:8501"  # Map container's 8501 to host's 
+      
+  run-ml-model-sentiment:
+    container_name: run-ml-model-sentiment
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    privileged: true
+    environment:
+      CUDA_VISIBLE_DEVICES: ""
+      VAR_TWO: "0"
+      VAR_THREE: "0"
+      TF_NUM_INTRAOP_THREADS: 6
+    command: python3 playlistgenerator/ModelBuildingKaggle/sentiment.py
+    volumes:
+      - .:/opt/pipeline
+    ports:
+      - "8501:8501"  # Map container's 8501 to host's 8501
+
+  run-ml-model-reccs:
+    container_name: run-ml-model-reccs
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    privileged: true
+    environment:
+      CUDA_VISIBLE_DEVICES: ""
+      VAR_TWO: "0"
+      VAR_THREE: "0"
+      TF_NUM_INTRAOP_THREADS: 6
+    command: python3 playlistgenerator/ModelBuildingKaggle/model.py
+    volumes:
+      - .:/opt/pipeline
+    ports:
+      - "8501:8501"  # Map container's 8501 to host's 8501
+
+  run-spotify-fetch:
+    container_name: run-spotify-fetch
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    privileged: true
+    environment:
+      CUDA_VISIBLE_DEVICES: ""
+      VAR_TWO: "0"
+      VAR_THREE: "0"
+      TF_NUM_INTRAOP_THREADS: 6
+    command: python3 -u playlistgenerator/FetchSpotify/model.py
+    volumes:
+      - .:/opt/pipeline
+    ports:
+      - "8501:8501"  # Map container's 8501 to host's 8501
+
   run-pipeline:
     container_name: run-pipeline
     build:

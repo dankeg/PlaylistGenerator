@@ -29,7 +29,7 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
             shape=(), dtype=np.int32, minimum=0, maximum=4, name="action"
         )
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(30,), dtype=np.float64, minimum=0, name="observation"
+            shape=(75,), dtype=np.float64, minimum=0, name="observation"
         )
 
         # Save the initial data
@@ -41,10 +41,8 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
         self.data["user_score"] = 0
 
         # Hash track_name and artist_name for unique identification
-        self.data["track_name"] = self.data["track_name"].apply(lambda x: small_hash(x))
-        self.data["artist_name"] = self.data["artist_name"].apply(
-            lambda x: small_hash(x)
-        )
+        self.data["name"] = self.data["name"].apply(lambda x: small_hash(x))
+        self.data["artists"] = self.data["artists"].apply(lambda x: small_hash(x))
 
         # Initialize the state with the first 5 rows of data
         self._state = self.data.head(5)
@@ -72,10 +70,8 @@ class MusicPlaylistEnv(py_environment.PyEnvironment):
         self.data["user_score"] = 0
 
         # Hash track_name and artist_name for unique identification
-        self.data["track_name"] = self.data["track_name"].apply(lambda x: small_hash(x))
-        self.data["artist_name"] = self.data["artist_name"].apply(
-            lambda x: small_hash(x)
-        )
+        self.data["name"] = self.data["name"].apply(lambda x: small_hash(x))
+        self.data["artists"] = self.data["artists"].apply(lambda x: small_hash(x))
 
         # Initialize the state with the first 5 rows of data
         self._state = self.data.head(5)

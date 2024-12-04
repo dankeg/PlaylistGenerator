@@ -14,7 +14,9 @@ class RLUpdate:
 
     def __init__(self):
         # Load data
-        self.saved_data = pd.read_csv("playlistgenerator/recommendation.csv")
+        self.saved_data = pd.read_csv(
+            "playlistgenerator/Datasets/combined_recommendation.csv"
+        )
 
         # Copy the data and add unique_id and user_score columns
         self.saved_data["unique_id"] = range(1, len(self.saved_data) + 1)
@@ -22,10 +24,10 @@ class RLUpdate:
         self.processed_data["user_score"] = 0
 
         # Hash track_name and artist_name for unique identification
-        self.processed_data["track_name"] = self.processed_data["track_name"].apply(
+        self.processed_data["name"] = self.processed_data["name"].apply(
             lambda x: small_hash(x)
         )
-        self.processed_data["artist_name"] = self.processed_data["artist_name"].apply(
+        self.processed_data["artists"] = self.processed_data["artists"].apply(
             lambda x: small_hash(x)
         )
 
@@ -34,7 +36,9 @@ class RLUpdate:
         self.episode_ended = False
 
         # Load the saved policy
-        self.saved_policy = tf.saved_model.load("playlistgenerator/ModelOutputs/policy")
+        self.saved_policy = tf.saved_model.load(
+            "playlistgenerator/outputs/ModelOutputs/policy"
+        )
 
         # Initialize variables
         self.bar_chart = []
@@ -55,8 +59,8 @@ class RLUpdate:
 
             # Find the row in the 'saved_data' DataFrame where the 'unique_id' matches
             matching_row = self.saved_data[self.saved_data["unique_id"] == id_value]
-            track_name = matching_row["track_name"].values[0]
-            artist_name = matching_row["artist_name"].values[0]
+            track_name = matching_row["name"].values[0]
+            artist_name = matching_row["artists"].values[0]
 
             output_list.append(track_name + " - " + artist_name)
 
@@ -99,8 +103,8 @@ class RLUpdate:
 
         # Find the row in the 'saved_data' DataFrame where the 'unique_id' matches
         matching_row = self.saved_data[self.saved_data["unique_id"] == id_value]
-        track_name = matching_row["track_name"].values[0]
-        artist_name = matching_row["artist_name"].values[0]
+        track_name = matching_row["name"].values[0]
+        artist_name = matching_row["artists"].values[0]
 
         # Print the track and artist names
         print("\n")

@@ -25,7 +25,6 @@ from playlistgenerator.ReinforcementLearning.constants import (
 )
 from playlistgenerator.ReinforcementLearning.environment import MusicPlaylistEnv
 
-tf.config.set_visible_devices([], "GPU")
 tf.config.optimizer.set_jit(True)
 
 
@@ -248,5 +247,26 @@ if __name__ == "__main__":
     print("Starting Training!")
     print("\n\n\n")
 
-    reccs = pd.read_csv("playlistgenerator/recommendation.csv")
-    agent = train_models(reccs)
+    reccs = pd.read_csv("playlistgenerator/Datasets/spotify_recommendations.csv")
+    model_output = pd.read_csv("playlistgenerator/Datasets/full_recommendations.csv")
+    reccs = reccs.rename(
+        columns={
+            "track_name": "name",
+            "artist_name": "artists",
+            "sentiment": "sentiment_score",
+        }
+    )
+
+    for col in model_output.columns:
+        if col not in reccs.columns:
+            reccs[col] = 0
+
+    # Reorder `model_outputs` to start with the columns in `reccs`
+    ordered_columns = list(reccs.columns) + [
+        col for col in model_output.columns if col not in reccs.columns
+    ]
+    result = pd.concat([reccs, model_output]).fillna(0)
+    result = result[ordered_columns]
+
+    result.to_csv("playlistgenerator/Datasets/combined_recommendation.csv", index=False)
+    agent = train_models(result)
