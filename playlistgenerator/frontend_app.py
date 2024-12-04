@@ -37,7 +37,7 @@ class RLUpdate:
 
         # Load the saved policy
         self.saved_policy = tf.saved_model.load(
-            "playlistgenerator/outputs/ModelOutputs/policy"
+            "outputs/ModelOutputs/policy"
         )
 
         # Initialize variables
@@ -77,6 +77,7 @@ class RLUpdate:
         """
         # Prepare the observation tensor
         observation_tensor = self.state.to_numpy().flatten()
+        observation_tensor = np.array(observation_tensor, dtype=np.float64)
         observation_tensor = tf.expand_dims(
             observation_tensor, axis=0
         )  # Add batch dimension

@@ -241,7 +241,6 @@ def train_models(ml_data):
 
     return agent
 
-
 if __name__ == "__main__":
     print("\n\n\n")
     print("Starting Training!")
@@ -267,6 +266,7 @@ if __name__ == "__main__":
     ]
     result = pd.concat([reccs, model_output]).fillna(0)
     result = result[ordered_columns]
+    result = result.drop(columns=['lyrics', 'emotion', "id", "mode"])
 
     result.to_csv("playlistgenerator/Datasets/combined_recommendation.csv", index=False)
     agent = train_models(result)
